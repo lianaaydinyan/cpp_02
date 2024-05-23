@@ -22,7 +22,7 @@ Fixed& Fixed::operator=(const Fixed& obj)
     std::cout << "Assignation operator called" << std::endl;
     if (this != &obj)
     {
-        this->fix_point = obj.fix_point;
+        this->fix_point = obj.getRawBits();
     }
     return (*this);
 }
@@ -46,20 +46,19 @@ Fixed::Fixed(const int n)
 
 Fixed::Fixed(const float n)
 {
-    this->fix_point = roundf( n * (1 << this->fractional_bits));
+    this->fix_point = roundf(n * (1 << this->fractional_bits));
 }
 
 
 float Fixed::toFloat( void ) const
 {
-    return (float(this->fix_point) / (float) (1 << this->fractional_bits));
+    return ((float)this->fix_point / (float) (1 << this->fractional_bits));
 }
 
 
 int Fixed::toInt( void ) const
 {
-    int int_part = this->fix_point >> this->fractional_bits;
-    return (int_part);
+    return ( this->fix_point >> this->fractional_bits);
 }
 
 std::ostream    &operator<<(std::ostream &os, Fixed const &fp)
@@ -70,36 +69,36 @@ std::ostream    &operator<<(std::ostream &os, Fixed const &fp)
 
 bool    Fixed::operator<(const Fixed& obj)
 {
-    return (this->fix_point < obj.getRawBits());
+    return (this->fix_point < obj.fix_point);
 }
 
 bool    Fixed::operator>(const Fixed& obj)
 {
-    return (this->fix_point < obj.getRawBits());
+    return (this->fix_point < obj.fix_point);
 
 }
 
 bool   Fixed::operator==(const Fixed& obj)
 {
-    return (this->fix_point == obj.getRawBits());
+    return (this->fix_point == obj.fix_point);
 
 }
 
 bool    Fixed::operator>=(const Fixed& obj) const
 {
-    return (this->fix_point >= obj.getRawBits());
+    return (this->fix_point >= obj.fix_point);
 
 }
 
 bool    Fixed::operator<=(const Fixed& obj)
 {
-    return (this->fix_point <= obj.getRawBits());
+    return (this->fix_point <= obj.fix_point);
 
 }
 
 bool    Fixed::operator!=(const Fixed& obj)
 {
-    return (this->fix_point != obj.getRawBits());
+    return (this->fix_point != obj.fix_point);
 
 }
 
@@ -120,41 +119,39 @@ Fixed Fixed::operator-(const Fixed& obj) const
 Fixed Fixed::operator*(const Fixed& obj) const
 {
     Fixed res;
-    // float 
-    res.fix_point = this->toFloat() * (obj.fix_point << this->fractional_bits);
+    res.fix_point = this->toFloat() * obj.toFloat();
     return (res);
 }
 
 Fixed Fixed::operator/(const Fixed& obj) const
 {
     Fixed res;
-    //float
-    res.fix_point = (this->fix_point << this->fractional_bits) / (obj.fix_point);
+    res.fix_point = this->toFloat() / obj.toFloat();
     return (res);
 }
 
 Fixed& Fixed::operator++( ) // prefix
 {
-    this->fix_point += (1 << fractional_bits);
+    this->fix_point++;
     return (*this);
 }
 
 Fixed Fixed::operator++( int )  // postfix
 {
     Fixed tmp = *this;
-    tmp.fix_point += (1 << fractional_bits);
+    ++tmp.fix_point;
     return (tmp);
 }
 
 Fixed& Fixed::operator--( ) // prefix
 {
-    this->fix_point -= (1 << fractional_bits);
+    this->fix_point--;
     return (*this);
 }
 
 Fixed Fixed::operator--( int )  // postfix
 {
     Fixed tmp = *this;
-    tmp.fix_point -= (1 << fractional_bits);
+    --tmp.fix_point;
     return (tmp);
 }
